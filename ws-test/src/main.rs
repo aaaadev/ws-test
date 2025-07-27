@@ -4,7 +4,7 @@ use actix_web_actors::ws;
 use std::time::{Duration, Instant};
 use rand::{prelude::*, random};
 
-const DATA_SIZE: usize = 1024 * 1024;
+const DATA_SIZE: usize = 1024 * 256;
 
 struct TestWebSocket {
     hb: Instant,

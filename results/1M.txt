@@ -1,0 +1,34 @@
+  █ TOTAL RESULTS 
+
+    checks_total.......................: 257    2.855462/s
+    checks_succeeded...................: 52.91% 136 out of 257
+    checks_failed......................: 47.08% 121 out of 257
+
+    ✗ status is 101
+      ↳  52% — ✓ 136 / ✗ 121
+
+    CUSTOM
+    received_stream_msgs.......................: 52092  578.781042/s
+
+    EXECUTION
+    iteration_duration.........................: avg=20.72s min=17.69ms  med=21.18s max=1m13s  p(90)=34.43s p(95)=43.08s
+    iterations.................................: 257    2.855462/s
+    vus........................................: 28     min=28       max=100
+    vus_max....................................: 100    min=100      max=100
+
+    NETWORK
+    data_received..............................: 2.1 GB 23 MB/s
+    data_sent..................................: 157 kB 1.7 kB/s
+
+    WEBSOCKET
+    ws_connecting..............................: avg=5.67s  min=546.91µs med=1.41s  max=31.93s p(90)=17.24s p(95)=21.15s
+    ws_msgs_received...........................: 6316   70.175479/s
+    ws_msgs_sent...............................: 5702   63.35348/s
+    ws_session_duration........................: avg=20.72s min=17.62ms  med=21.18s max=1m13s  p(90)=34.43s p(95)=43.08s
+    ws_sessions................................: 285    3.166563/s
+
+
+
+
+running (1m30.0s), 000/100 VUs, 257 complete and 28 interrupted iterations
+default ✓ [======================================] 100 VUs  1m0s
