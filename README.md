@@ -8,7 +8,7 @@ Macbook Pro "14 (2023, M2 Max)
 ### List
 | size | throughput | link |
 | - | --- | --- |
-| 1M  | 52.91%  | [here](./results/1M.txt) |
+| 1M  | 100MB/s  | [here](./results/1M.txt) |
 ## Structure
 ```mermaid
 graph TD
