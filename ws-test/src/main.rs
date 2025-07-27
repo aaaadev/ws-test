@@ -1,19 +1,24 @@
 use actix::{Actor, StreamHandler, AsyncContext, ActorContext};
+use actix::prelude::*;
 use actix_web::{body::MessageBody, web::{self, Bytes}, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 use std::time::{Duration, Instant};
 use rand::{prelude::*, random};
 
-const DATA_SIZE: usize = 1024 * 256;
+const DATA_SIZE: usize = 1024 * 1024;
+
+#[derive(Message)]
+#[rtype(result = "()")]
+struct SendNextData;
 
 struct TestWebSocket {
     hb: Instant,
-    counter: usize,
+    waiting_for_ack: bool,
 }
 
 impl TestWebSocket {
     fn new() -> Self {
-        Self { hb: Instant::now(), counter: 0 }
+        Self { hb: Instant::now(), waiting_for_ack: false }
     }
 
     fn hb(&self, ctx: &mut <Self as Actor>::Context) {
@@ -25,6 +30,20 @@ impl TestWebSocket {
             ctx.ping(b"");
         });
     }
+
+    fn send_data(&mut self, ctx: &mut ws::WebsocketContext<Self>) {
+        if self.waiting_for_ack {
+            return;
+        }
+
+        let mut rng = rand::rng();
+        let mut data = vec![0x00; DATA_SIZE];
+        rng.fill(&mut data[..]);
+        
+        ctx.binary(data);
+
+        self.waiting_for_ack = true;
+    }
 }
 
 impl Actor for TestWebSocket {
@@ -32,11 +51,15 @@ impl Actor for TestWebSocket {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         self.hb(ctx);
-        ctx.run_interval(Duration::from_secs(1), |act, ctx| {
-            act.counter += 1;
-            let tmp: Vec<u8> = vec![0;DATA_SIZE].iter().map(|_x| random::<u8>()).collect();
-            ctx.binary(Bytes::copy_from_slice(&tmp));
-        });
+        self.send_data(ctx);
+    }
+}
+
+impl Handler<SendNextData> for TestWebSocket {
+    type Result = ();
+
+    fn handle(&mut self, _msg: SendNextData, ctx: &mut Self::Context) {
+        self.send_data(ctx);
     }
 }
 
@@ -50,10 +73,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for TestWebSocket {
             Ok(ws::Message::Pong(_)) => {
                 self.hb = Instant::now();
             }
-            Ok(ws::Message::Text(text)) => {
-                ctx.text(text);
+            Ok(ws::Message::Text(_)) | Ok(ws::Message::Binary(_)) => {
+                self.waiting_for_ack = false;
+                ctx.address().do_send(SendNextData);
             }
-            Ok(ws::Message::Binary(bin)) => ctx.binary(bin),
             Ok(ws::Message::Close(reason)) => {
                 ctx.close(reason);
                 ctx.stop();

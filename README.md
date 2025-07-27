@@ -6,8 +6,30 @@
 ### Environment
 Macbook Pro "14 (2023, M2 Max)
 ### List
-| size | checks_succeeded | link |
+| size | throughput | link |
 | - | --- | --- |
 | 1M  | 52.91%  | [here](./results/1M.txt) |
-| 512K  | 59.06%  | [here](./results/512K.txt) |
-| 256K  | 100%  | [here](./results/256K.txt) |
+## Structure
+```mermaid
+graph TD
+    subgraph "Client"
+        Clients(User)
+    end
+
+    subgraph "Infra (OVHCloud)"
+        subgraph "Application server"
+            API(actix-web + poller)
+        end
+        
+        subgraph "Middleware"
+            DB(ClickHouse DB)
+            Grafana(Grafana)
+        end
+    end
+
+    Clients -- "WS connection" --> API
+    API -- "Polling to query data" --> DB
+    API -- "In-memory cache" --> API
+    Grafana -- "Query to visualize data" --> DB
+
+```
