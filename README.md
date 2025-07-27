@@ -20,16 +20,14 @@ graph TD
         subgraph "Application server"
             API(actix-web + poller)
         end
-        
-        subgraph "Middleware"
+    end
+            subgraph "Middleware"
             DB(ClickHouse DB)
             Grafana(Grafana)
         end
-    end
 
     Clients -- "WS connection" --> API
     API -- "Polling to query data" --> DB
     API -- "In-memory cache" --> API
     Grafana -- "Query to visualize data" --> DB
-
 ```
